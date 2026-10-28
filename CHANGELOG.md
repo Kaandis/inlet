@@ -3,7 +3,7 @@
 ## 1.3 — 2026-10-28
 
 - English and Turkish, following the system language, with a language picker in Settings → General.
-- New app icon and a new website.
+- A new, simpler website.
 - The everyday island is a normal window again; a twin window covers the lock screen. This fixes file drag-and-drop onto the island.
 - Lock screen: a near-square Now Playing card (or a compact one), scaled to the display, and two configurable small widgets — Focus, weather, battery or next event.
 
