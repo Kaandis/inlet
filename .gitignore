@@ -1,0 +1,7 @@
+build/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+.DS_Store
+previous/
+*.zip
+Inlet.xcodeproj/

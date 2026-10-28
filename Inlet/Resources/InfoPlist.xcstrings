@@ -1,0 +1,70 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSAppleEventsUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inlet talks to Music and Spotify to show and control what’s playing."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inlet, şu an çalan şarkıyı göstermek ve kontrol etmek için Music ve Spotify ile konuşur."
+          }
+        }
+      }
+    },
+    "NSCalendarsFullAccessUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inlet reads your calendar to show today’s events on the island."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inlet, bugünkü etkinliklerini adada göstermek için takvimini okur."
+          }
+        }
+      }
+    },
+    "NSCalendarsUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inlet reads your calendar to show today’s events on the island."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inlet, bugünkü etkinliklerini adada göstermek için takvimini okur."
+          }
+        }
+      }
+    },
+    "NSBluetoothAlwaysUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inlet watches Bluetooth to let you know when devices like AirPods connect."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inlet, AirPods gibi aygıtlar bağlandığında adada haber vermek için Bluetooth'u izler."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
