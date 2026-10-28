@@ -629,6 +629,8 @@ h2 {
 .footer-brand { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 15px; }
 .footer-links { display: flex; gap: 20px; color: var(--ink-2); font-size: 14px; }
 .footer-links a:hover { color: var(--ink); }
+.disclaimer a { text-decoration: underline; text-underline-offset: 2px; }
+.disclaimer + .disclaimer { margin-top: 6px; }
 .disclaimer { margin: 16px 0 0; max-width: 80ch; color: var(--ink-3); font-size: 12.5px; line-height: 1.5; }
 
 /* ---------- Responsive ---------- */

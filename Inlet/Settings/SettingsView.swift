@@ -132,6 +132,8 @@ private struct AboutView: View {
             Text("Your notch, put to work.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
+            WeatherAttribution()
+                .padding(.top, 8)
                 .padding(.bottom, 24)
         }
         .frame(maxWidth: .infinity)

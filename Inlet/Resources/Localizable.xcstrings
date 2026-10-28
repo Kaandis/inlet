@@ -939,6 +939,16 @@
         }
       }
     },
+    "Weather data by Open-Meteo.com": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hava durumu verisi: Open-Meteo.com"
+          }
+        }
+      }
+    },
     "Work": {
       "localizations": {
         "tr": {

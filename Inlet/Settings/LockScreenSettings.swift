@@ -56,7 +56,7 @@ struct LockScreenSettings: View {
             .disabled(!showOnLockScreen)
 
             if slots.contains(.weather) {
-                Section("Weather") {
+                Section {
                     TextField("City", text: $city)
                         .onSubmit { weather.refresh(force: true) }
                     Picker("Unit", selection: $unit) {
@@ -72,6 +72,10 @@ struct LockScreenSettings: View {
                               systemImage: WeatherService.symbol(for: conditions))
                             .foregroundStyle(.secondary)
                     }
+                } header: {
+                    Text("Weather")
+                } footer: {
+                    WeatherAttribution()
                 }
             }
 
@@ -160,5 +164,18 @@ private struct LockScreenPreview: View {
             LinearGradient(colors: [Color(red: 0.25, green: 0.18, blue: 0.62), Color(red: 0.45, green: 0.25, blue: 0.7)],
                            startPoint: .topLeading, endPoint: .bottomTrailing)
         }
+    }
+}
+
+/// Open-Meteo data is CC BY 4.0: credit it wherever the weather appears in Inlet's UI.
+struct WeatherAttribution: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            Link("Weather data by Open-Meteo.com", destination: URL(string: "https://open-meteo.com/")!)
+            Text("·")
+            Link("CC BY 4.0", destination: URL(string: "https://creativecommons.org/licenses/by/4.0/")!)
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
     }
 }

@@ -6,6 +6,7 @@
 - Much lighter on battery: near-zero CPU while music plays (was ~7–16%). Level bars run on Core Animation, Music/Spotify changes arrive via their notifications instead of polling every second, scripts are compiled once, hover uses a small sensor window instead of a global mouse monitor, and timers allow the system to coalesce wakeups.
 - Privacy: while the Mac is locked, the island only opens to Now Playing — calendar and tray stay hidden.
 - Track names containing unusual characters no longer break Now Playing.
+- Weather data is credited to Open-Meteo (CC BY 4.0) in Settings, About and on the website.
 
 ## 1.3 — 2026-10-28
 

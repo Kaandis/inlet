@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://github.com/Kaandis/inlet/releases/latest"><img src="https://img.shields.io/github/v/release/Kaandis/inlet?label=download&color=6ee7b7" alt="Latest release"></a>
-  <img src="https://img.shields.io/badge/macOS-15%2B-111?logo=apple" alt="macOS 15+">
+  <img src="https://img.shields.io/badge/macOS-15%2B-111" alt="macOS 15+">
   <img src="https://img.shields.io/badge/Swift-SwiftUI%20%2B%20AppKit-f05138?logo=swift&logoColor=white" alt="Swift">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
 </p>
@@ -125,7 +125,9 @@ Inlet speaks English and Turkish and follows your system language; you can also 
 
 - [SkyLightWindow](https://github.com/Lakr233/SkyLightWindow) (MIT) by Lakr233 for documenting the lock-screen space technique.
 - [mew-notch](https://github.com/monuk7735/mew-notch) for writing down that lock-screen windows don't receive drag-and-drop.
-- [Open-Meteo](https://open-meteo.com) for free weather data.
+- Weather data by [Open-Meteo.com](https://open-meteo.com), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Inspiration.** The idea of a living island around the notch comes from the iPhone, and from notch apps such as [Alcove](https://tryalcove.com), [NotchNook](https://lo.cafe/notchnook) and [boring.notch](https://github.com/TheBoredTeam/boring.notch). Inlet is an independent project and shares no code or assets with them.
 
 ## Disclaimer
 

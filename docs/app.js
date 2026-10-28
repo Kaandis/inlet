@@ -60,6 +60,7 @@
     'q6.q': 'Hangi dilleri konuşuyor?', 'q6.a': 'İngilizce ve Türkçe; sistemini takip eder ya da Ayarlar’dan birini seçersin.',
     'footer.license': 'MIT Lisansı',
     'footer.releases': 'Sürümler',
+    'footer.weather': 'Hava durumu verisi: <a href="https://open-meteo.com/">Open-Meteo.com</a> (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>).',
     'footer.disclaimer': 'Inlet bağımsız bir projedir; Apple Inc. ile bağlantılı değildir, Apple tarafından onaylanmamış veya desteklenmemiştir. Mac, MacBook, AirDrop ve AirPods, Apple Inc.’in ticari markalarıdır. Spotify, Spotify AB’nin ticari markasıdır.',
   };
 

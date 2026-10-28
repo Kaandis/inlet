@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://github.com/Kaandis/inlet/releases/latest"><img src="https://img.shields.io/github/v/release/Kaandis/inlet?label=indir&color=6ee7b7" alt="Son sürüm"></a>
-  <img src="https://img.shields.io/badge/macOS-15%2B-111?logo=apple" alt="macOS 15+">
+  <img src="https://img.shields.io/badge/macOS-15%2B-111" alt="macOS 15+">
   <img src="https://img.shields.io/badge/Swift-SwiftUI%20%2B%20AppKit-f05138?logo=swift&logoColor=white" alt="Swift">
   <a href="LICENSE"><img src="https://img.shields.io/badge/lisans-MIT-blue" alt="MIT lisansı"></a>
 </p>
@@ -125,7 +125,9 @@ Inlet İngilizce ve Türkçe konuşur ve sistem dilini takip eder; istersen **Ay
 
 - Kilit ekranı katmanı tekniğini belgelediği için Lakr233'ün [SkyLightWindow](https://github.com/Lakr233/SkyLightWindow) projesi (MIT).
 - Kilit ekranı pencerelerinin sürükle-bırak almadığını kayda geçirdiği için [mew-notch](https://github.com/monuk7735/mew-notch).
-- Ücretsiz hava durumu verisi için [Open-Meteo](https://open-meteo.com).
+- Hava durumu verisi [Open-Meteo.com](https://open-meteo.com)'dan, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) lisansıyla.
+
+**İlham.** Çentiğin etrafında canlı bir ada fikri iPhone'dan ve [Alcove](https://tryalcove.com), [NotchNook](https://lo.cafe/notchnook), [boring.notch](https://github.com/TheBoredTeam/boring.notch) gibi çentik uygulamalarından geliyor. Inlet bağımsız bir projedir; bu uygulamalarla hiçbir kod ya da görseli paylaşmaz.
 
 ## Uyarı
 
