@@ -489,21 +489,9 @@ struct LockScreenMediaCard: View {
 private struct DotMeter: View {
     let isPlaying: Bool
     let color: Color
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 24, paused: !isPlaying || reduceMotion)) { context in
-            let t = context.date.timeIntervalSinceReferenceDate
-            HStack(spacing: 2.5) {
-                ForEach(0..<5, id: \.self) { i in
-                    let wave = (sin(t * (5 + Double(i) * 1.7) + Double(i)) + 1) / 2
-                    Capsule()
-                        .fill(color)
-                        .frame(width: 3, height: isPlaying && !reduceMotion ? 3 + 9 * wave : 3)
-                }
-            }
-            .frame(height: 12)
-        }
+        PulseBars(count: 5, barWidth: 3, spacing: 2.5, height: 12, minScale: 0.25, color: color, isAnimating: isPlaying)
     }
 }
 

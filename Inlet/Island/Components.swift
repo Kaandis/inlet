@@ -97,32 +97,144 @@ struct BatteryGlyph: View {
     }
 }
 
-// MARK: - Equalizer
+// MARK: - Level bars
 
-/// Little bars that dance while music plays; frozen when paused or when the
-/// user prefers reduced motion.
+/// Little bars that dance while music plays.
+///
+/// Driven by repeating Core Animation animations, so the render server runs
+/// them and the app itself stays idle — a SwiftUI TimelineView redrawing the
+/// island every frame cost ~7% CPU and 130 wakeups a second.
+struct PulseBars: View {
+    let count: Int
+    var barWidth: CGFloat = 2.5
+    var spacing: CGFloat = 2
+    var height: CGFloat = 14
+    var minScale: CGFloat = 0.3
+    var color: Color = .white
+    let isAnimating: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isStaticRender) private var isStaticRender
+
+    private var width: CGFloat { CGFloat(count) * barWidth + CGFloat(count - 1) * spacing }
+
+    var body: some View {
+        Group {
+            if isStaticRender {
+                // ImageRenderer can't draw AppKit views; a still frame is enough there.
+                HStack(spacing: spacing) {
+                    ForEach(0..<count, id: \.self) { i in
+                        Capsule().fill(color)
+                            .frame(width: barWidth, height: height * (isAnimating ? [0.55, 1, 0.7, 0.85, 0.45][i % 5] : minScale))
+                    }
+                }
+            } else {
+                PulseBarsLayer(count: count, barWidth: barWidth, spacing: spacing, minScale: minScale,
+                               color: NSColor(color), isAnimating: isAnimating && !reduceMotion)
+            }
+        }
+        .frame(width: width, height: height)
+    }
+}
+
+private struct PulseBarsLayer: NSViewRepresentable {
+    let count: Int
+    let barWidth: CGFloat
+    let spacing: CGFloat
+    let minScale: CGFloat
+    let color: NSColor
+    let isAnimating: Bool
+
+    func makeNSView(context: Context) -> PulseBarsView { PulseBarsView() }
+
+    func updateNSView(_ view: PulseBarsView, context: Context) {
+        view.configure(count: count, barWidth: barWidth, spacing: spacing, minScale: minScale,
+                       color: color, animating: isAnimating)
+    }
+}
+
+final class PulseBarsView: NSView {
+    private var bars: [CALayer] = []
+    private var barWidth: CGFloat = 2.5
+    private var spacing: CGFloat = 2
+    private var minScale: CGFloat = 0.3
+    private var animating = false
+
+    /// Slightly different periods so the bars never fall into step.
+    private static let durations: [CFTimeInterval] = [0.42, 0.31, 0.53, 0.37, 0.47]
+
+    override init(frame: NSRect) {
+        super.init(frame: frame)
+        wantsLayer = true
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+    override var isFlipped: Bool { true }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        updateAnimations()
+    }
+
+    func configure(count: Int, barWidth: CGFloat, spacing: CGFloat, minScale: CGFloat, color: NSColor, animating: Bool) {
+        self.barWidth = barWidth
+        self.spacing = spacing
+        self.minScale = minScale
+        if bars.count != count {
+            bars.forEach { $0.removeFromSuperlayer() }
+            bars = (0..<count).map { _ in
+                let bar = CALayer()
+                bar.cornerCurve = .continuous
+                layer?.addSublayer(bar)
+                return bar
+            }
+            needsLayout = true
+        }
+        bars.forEach { $0.backgroundColor = color.cgColor }
+        guard animating != self.animating || bars.first?.animation(forKey: "pulse") == nil && animating else { return }
+        self.animating = animating
+        updateAnimations()
+    }
+
+    override func layout() {
+        super.layout()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        for (i, bar) in bars.enumerated() {
+            bar.bounds = CGRect(x: 0, y: 0, width: barWidth, height: bounds.height)
+            bar.position = CGPoint(x: CGFloat(i) * (barWidth + spacing) + barWidth / 2, y: bounds.midY)
+            bar.cornerRadius = barWidth / 2
+        }
+        CATransaction.commit()
+        updateAnimations()
+    }
+
+    private func updateAnimations() {
+        for (i, bar) in bars.enumerated() {
+            bar.removeAnimation(forKey: "pulse")
+            bar.transform = CATransform3DMakeScale(1, minScale, 1)
+            guard animating else { continue }
+            let pulse = CABasicAnimation(keyPath: "transform.scale.y")
+            pulse.fromValue = minScale
+            pulse.toValue = 1
+            pulse.duration = Self.durations[i % Self.durations.count]
+            pulse.autoreverses = true
+            pulse.repeatCount = .infinity
+            pulse.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            pulse.timeOffset = Double(i) * 0.13
+            bar.add(pulse, forKey: "pulse")
+        }
+    }
+}
+
+/// The island's equalizer.
 struct Equalizer: View {
     let isPlaying: Bool
     var color: Color = .white
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private let phases: [Double] = [0, 1.7, 0.6, 2.4]
-    private let speeds: [Double] = [7.1, 9.3, 6.2, 8.4]
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30, paused: !isPlaying || reduceMotion)) { context in
-            let t = context.date.timeIntervalSinceReferenceDate
-            HStack(alignment: .center, spacing: 2) {
-                ForEach(0..<4, id: \.self) { i in
-                    let wave = (sin(t * speeds[i] + phases[i]) + 1) / 2
-                    let height = isPlaying && !reduceMotion ? 0.3 + 0.7 * wave : 0.3
-                    Capsule()
-                        .fill(color)
-                        .frame(width: 2.5, height: 14 * height)
-                }
-            }
-            .frame(height: 14)
-        }
+        PulseBars(count: 4, color: color, isAnimating: isPlaying)
     }
 }
 

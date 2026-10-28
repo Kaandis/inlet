@@ -25,6 +25,28 @@ final class IslandPanel: NSPanel {
     override var canBecomeMain: Bool { false }
 }
 
+/// Reports pointer movement over its bounds through a tracking area. This is
+/// how Inlet notices the pointer near the island without a global mouse
+/// monitor, which would wake the app on every mouse move anywhere on screen.
+class HoverTrackingView: NSView {
+    var onPointer: (() -> Void)?
+    private var tracking: NSTrackingArea?
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let tracking { removeTrackingArea(tracking) }
+        let area = NSTrackingArea(rect: .zero,
+                                  options: [.mouseEnteredAndExited, .mouseMoved, .activeAlways, .inVisibleRect],
+                                  owner: self, userInfo: nil)
+        addTrackingArea(area)
+        tracking = area
+    }
+
+    override func mouseEntered(with event: NSEvent) { onPointer?() }
+    override func mouseMoved(with event: NSEvent) { onPointer?() }
+    override func mouseExited(with event: NSEvent) { onPointer?() }
+}
+
 /// Receives file drags for the whole panel canvas, so the drop target doesn't
 /// depend on the island's animating shape (which made it flicker in and out).
 @MainActor
@@ -34,7 +56,7 @@ protocol IslandDropHandler: AnyObject {
     func performDrop(_ info: NSDraggingInfo) -> Bool
 }
 
-final class IslandContainerView: NSView {
+final class IslandContainerView: HoverTrackingView {
     weak var dropHandler: IslandDropHandler?
 
     override init(frame: NSRect) {

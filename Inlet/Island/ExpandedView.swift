@@ -9,11 +9,16 @@ struct ExpandedView: View {
     @ObservedObject var timer: TimerService
     @Environment(\.openSettings) private var openSettings
 
+    /// While the Mac is locked, only Now Playing is reachable: calendar titles
+    /// and tray file names stay private to whoever unlocks it.
+    private var tabs: [ExpandedTab] { model.isLocked ? [.media] : ExpandedTab.allCases }
+    private var visibleTab: ExpandedTab { model.isLocked ? .media : model.tab }
+
     var body: some View {
         VStack(spacing: 0) {
             header
             Group {
-                switch model.tab {
+                switch visibleTab {
                 case .media:
                     MediaPanel(media: media, swipeOffset: model.swipeOffset)
                 case .calendar:
@@ -38,7 +43,7 @@ struct ExpandedView: View {
     private var header: some View {
         HStack(spacing: 0) {
             HStack(spacing: 16) {
-                ForEach(ExpandedTab.allCases, id: \.self) { tab in
+                ForEach(tabs, id: \.self) { tab in
                     tabButton(tab, icon: tab.symbol)
                 }
             }
@@ -47,8 +52,10 @@ struct ExpandedView: View {
             Color.clear.frame(width: model.notchSize.width)
 
             HStack(spacing: 6) {
-                settingsButton
-                    .padding(.trailing, 6)
+                if !model.isLocked {
+                    settingsButton
+                        .padding(.trailing, 6)
+                }
                 if battery.hasBattery {
                     Text("\(battery.level)%")
                         .font(.system(size: 12, weight: .semibold))
@@ -86,7 +93,7 @@ struct ExpandedView: View {
         } label: {
             Image(systemName: icon)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.white.opacity(model.tab == tab ? 1 : 0.4))
+                .foregroundStyle(.white.opacity(visibleTab == tab ? 1 : 0.4))
                 .frame(width: 22, height: 22)
         }
         .buttonStyle(PressableStyle())

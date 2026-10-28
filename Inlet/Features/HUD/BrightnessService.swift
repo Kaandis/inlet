@@ -17,13 +17,20 @@ final class BrightnessService {
 
     private var timer: Timer?
     private var last: Float?
+    private var display: CGDirectDisplayID?
 
+    /// Only polls when there's a built-in panel to read — on a desk setup with
+    /// just external monitors it does nothing at all.
     func start() {
-        guard timer == nil, getBrightness != nil else { return }
+        guard timer == nil, getBrightness != nil, let display = builtInDisplay() else { return }
+        self.display = display
         last = read()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: 0.2, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.tick() }
         }
+        timer.tolerance = 0.05
+        RunLoop.main.add(timer, forMode: .common)
+        self.timer = timer
     }
 
     func stop() {
@@ -31,17 +38,17 @@ final class BrightnessService {
         timer = nil
     }
 
-    private func builtInDisplay() -> CGDirectDisplayID {
+    private func builtInDisplay() -> CGDirectDisplayID? {
         var ids = [CGDirectDisplayID](repeating: 0, count: 8)
         var count: UInt32 = 0
         CGGetOnlineDisplayList(8, &ids, &count)
-        return ids.prefix(Int(count)).first(where: { CGDisplayIsBuiltin($0) != 0 }) ?? CGMainDisplayID()
+        return ids.prefix(Int(count)).first(where: { CGDisplayIsBuiltin($0) != 0 })
     }
 
     private func read() -> Float? {
-        guard let getBrightness else { return nil }
+        guard let getBrightness, let display else { return nil }
         var value: Float = 0
-        return getBrightness(builtInDisplay(), &value) == 0 ? value : nil
+        return getBrightness(display, &value) == 0 ? value : nil
     }
 
     private func tick() {

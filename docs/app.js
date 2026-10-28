@@ -807,7 +807,8 @@
   mac.classList.add('locked');
   hint.classList.add('gone');
   const saved = store.get('lang');
-  const initial = saved ?? ((navigator.language || '').toLowerCase().startsWith('tr') ? 'tr' : 'en');
+  // Only trust known values from storage; anything else falls back to the browser language.
+  const initial = (saved === 'tr' || saved === 'en') ? saved : ((navigator.language || '').toLowerCase().startsWith('tr') ? 'tr' : 'en');
   renderTrack();
   setLanguage(initial);
   langButton.addEventListener('click', () => setLanguage(lang === 'tr' ? 'en' : 'tr'));

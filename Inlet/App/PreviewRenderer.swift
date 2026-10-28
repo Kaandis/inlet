@@ -38,6 +38,7 @@ enum PreviewRenderer {
             ("9-expanded-calendar", { $0.calendar.injectPreview(events); $0.tab = .calendar; $0.expand() }),
             ("10-locked", { $0.media.injectPreview(track, artwork: art); $0.setLocked(true) }),
             ("11-unlocked", { $0.setLocked(true); $0.setLocked(false) }),
+            ("11b-locked-expanded", { $0.media.injectPreview(track, artwork: art); $0.tab = .calendar; $0.setLocked(true); $0.expand() }),
             ("12-drop", { $0.tray.add(sampleFiles()); $0.setDropTarget(.tray) }),
             ("12b-drop-empty", { $0.setDropTarget(.airDrop) }),
             ("13-timer", { $0.timer.start(25 * 60) }),

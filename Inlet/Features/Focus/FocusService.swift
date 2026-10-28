@@ -22,9 +22,12 @@ final class FocusService: ObservableObject {
     func start() {
         guard timer == nil else { return }
         read()
-        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: 10, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.read() }
         }
+        timer.tolerance = 2
+        RunLoop.main.add(timer, forMode: .common)
+        self.timer = timer
     }
 
     func stop() {

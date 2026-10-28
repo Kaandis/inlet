@@ -34,7 +34,9 @@ enum MediaSource: String {
 /// Reads and controls playback in Music and Spotify through Apple Events.
 ///
 /// Scripts are only compiled for apps that are already running, so the user is
-/// never prompted to locate an app that isn't installed.
+/// never prompted to locate an app that isn't installed. Changes arrive through
+/// the players' own distributed notifications; the timer is just a slow safety
+/// net (polling every second used to cost ~8% CPU while Music was open).
 @MainActor
 final class NowPlayingService: ObservableObject {
     @Published private(set) var track: Track?
@@ -43,16 +45,31 @@ final class NowPlayingService: ObservableObject {
     private let queue = DispatchQueue(label: "app.inlet.applescript")
     private var timer: Timer?
     private var artworkKey: String?
+    private var observers: [NSObjectProtocol] = []
+    private var pendingPoll: DispatchWorkItem?
+
+    /// Players announce track and state changes on these.
+    private static let playerNotifications = ["com.apple.Music.playerInfo", "com.spotify.client.PlaybackStateChanged"]
+
+    private var running = false
 
     func start() {
-        guard timer == nil else { return }
-        poll()
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.poll() }
+        guard !running else { return }
+        running = true
+        let center = DistributedNotificationCenter.default()
+        observers = Self.playerNotifications.map { name in
+            center.addObserver(forName: .init(name), object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.schedulePoll() }
+            }
         }
+        poll()
+        rescheduleTimer()
     }
 
     func stop() {
+        running = false
+        observers.forEach { DistributedNotificationCenter.default().removeObserver($0) }
+        observers = []
         timer?.invalidate()
         timer = nil
         withAnimation(IslandModel.settle) { track = nil }
@@ -86,7 +103,7 @@ final class NowPlayingService: ObservableObject {
         let value = String(format: "%.2f", locale: Locale(identifier: "en_US_POSIX"), seconds)
         track?.position = seconds
         track?.sampledAt = .now
-        run("tell application id \"\(source.rawValue)\" to set player position to \(value)") { _ in }
+        run("tell application id \"\(source.rawValue)\" to set player position to \(value)", cache: false) { _ in }
     }
 
     func openSourceApp() {
@@ -132,7 +149,31 @@ final class NowPlayingService: ObservableObject {
         }
     }
 
+    /// Coalesces bursts of player notifications into one poll.
+    private func schedulePoll() {
+        pendingPoll?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.poll() }
+        pendingPoll = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: work)
+    }
+
+    /// Position is extrapolated between samples, so a playing track only needs
+    /// an occasional drift correction; a paused or absent one barely any.
+    private func rescheduleTimer() {
+        guard running else { return }
+        let interval: TimeInterval = track?.isPlaying == true ? 5 : 15
+        guard timer?.timeInterval != interval else { return }
+        timer?.invalidate()
+        let timer = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.poll() }
+        }
+        timer.tolerance = interval * 0.2
+        RunLoop.main.add(timer, forMode: .common)
+        self.timer = timer
+    }
+
     private func update(_ new: Track?) {
+        defer { rescheduleTimer() }
         let playingChanged = (new?.isPlaying ?? false) != (track?.isPlaying ?? false)
         if playingChanged || (new == nil) != (track == nil) {
             withAnimation(IslandModel.settle) { track = new }
@@ -178,8 +219,6 @@ final class NowPlayingService: ObservableObject {
 
     // MARK: - AppleScript (always on `queue`)
 
-    private nonisolated static let separator = "|#|"
-
     private nonisolated static func fetch(from source: MediaSource) -> Track? {
         // Spotify reports duration in milliseconds, Music in seconds.
         let duration = source == .spotify ? "((duration of t) / 1000)" : "(duration of t)"
@@ -188,13 +227,12 @@ final class NowPlayingService: ObservableObject {
         tell application id "\(source.rawValue)"
             if player state is stopped then return "stopped"
             set t to current track
-            set s to "\(separator)"
-            return (player state as string) & s & (name of t) & s & (artist of t) & s & (album of t) & s & (player position as string) & s & (\(duration) as string) & s & (\(shuffle) as string)
+            return {player state as string, name of t, artist of t, album of t, player position as string, \(duration) as string, \(shuffle) as string}
         end tell
         """
-        guard let result = execute(script)?.stringValue, result != "stopped" else { return nil }
-        let parts = result.components(separatedBy: separator)
-        guard parts.count == 7 else { return nil }
+        // A list, not a delimited string: track names can contain anything.
+        guard let result = execute(script), result.numberOfItems == 7 else { return nil }
+        let parts = (1...7).map { result.atIndex($0)?.stringValue ?? "" }
         return Track(title: parts[1],
                      artist: parts[2],
                      album: parts[3],
@@ -211,15 +249,26 @@ final class NowPlayingService: ObservableObject {
         TimeInterval(string.replacingOccurrences(of: ",", with: ".")) ?? 0
     }
 
-    private nonisolated static func execute(_ source: String) -> NSAppleEventDescriptor? {
+    /// Compiled scripts, keyed by source. Only touched on `queue`.
+    private nonisolated(unsafe) static var compiled: [String: NSAppleScript] = [:]
+
+    private nonisolated static func execute(_ source: String, cache: Bool = true) -> NSAppleEventDescriptor? {
         var error: NSDictionary?
-        let result = NSAppleScript(source: source)?.executeAndReturnError(&error)
+        let script: NSAppleScript?
+        if cache, let existing = compiled[source] {
+            script = existing
+        } else {
+            script = NSAppleScript(source: source)
+            guard script?.compileAndReturnError(&error) == true else { return nil }
+            if cache { compiled[source] = script }
+        }
+        let result = script?.executeAndReturnError(&error)
         return error == nil ? result : nil
     }
 
-    private func run(_ script: String, completion: @escaping @MainActor (NSAppleEventDescriptor?) -> Void) {
+    private func run(_ script: String, cache: Bool = true, completion: @escaping @MainActor (NSAppleEventDescriptor?) -> Void) {
         queue.async {
-            let result = Self.execute(script)
+            let result = Self.execute(script, cache: cache)
             DispatchQueue.main.async { completion(result) }
         }
     }

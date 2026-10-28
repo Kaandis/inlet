@@ -26,9 +26,12 @@ final class WeatherService: ObservableObject {
     func start() {
         guard timer == nil else { return }
         refresh(force: true)
-        timer = Timer.scheduledTimer(withTimeInterval: Self.refreshInterval, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: Self.refreshInterval, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh(force: true) }
         }
+        timer.tolerance = 120
+        RunLoop.main.add(timer, forMode: .common)
+        self.timer = timer
     }
 
     func stop() {

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- A small Settings button next to the battery in the expanded island.
+- Much lighter on battery: near-zero CPU while music plays (was ~7–16%). Level bars run on Core Animation, Music/Spotify changes arrive via their notifications instead of polling every second, scripts are compiled once, hover uses a small sensor window instead of a global mouse monitor, and timers allow the system to coalesce wakeups.
+- Privacy: while the Mac is locked, the island only opens to Now Playing — calendar and tray stay hidden.
+- Track names containing unusual characters no longer break Now Playing.
+
 ## 1.3 — 2026-10-28
 
 - English and Turkish, following the system language, with a language picker in Settings → General.

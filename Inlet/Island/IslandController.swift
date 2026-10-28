@@ -26,6 +26,9 @@ final class IslandController: IslandDropHandler {
     /// space never receive drag-and-drop, so the everyday island stays a
     /// normal window and this one is only ordered in while the Mac is locked.
     private var lockPanel: IslandPanel?
+    /// Invisible strip under the resting island, one level below `panel`. While
+    /// `panel` ignores the mouse, the pointer lands here and wakes the hover logic.
+    private var sensor: IslandPanel?
     private var unlockHideTask: Task<Void, Never>?
     private var screen: NSScreen?
     private var monitors: [Any] = []
@@ -96,19 +99,40 @@ final class IslandController: IslandDropHandler {
             let panel = IslandPanel(contentRect: frame)
             let container = IslandContainerView(frame: NSRect(origin: .zero, size: size))
             container.dropHandler = self
+            container.onPointer = { [weak self] in self?.mouseMoved() }
             let host = makeHost(size: size)
             host.frame = container.bounds
             container.addSubview(host)
             panel.contentView = container
             self.panel = panel
         }
+        if sensor == nil {
+            let sensor = IslandPanel(contentRect: .zero)
+            sensor.level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 2)
+            sensor.ignoresMouseEvents = false
+            let view = HoverTrackingView()
+            view.onPointer = { [weak self] in self?.mouseMoved() }
+            sensor.contentView = view
+            self.sensor = sensor
+            model.objectWillChange
+                .receive(on: RunLoop.main)
+                .sink { [weak self] _ in self?.updateSensor() }
+                .store(in: &cancellables)
+        }
+        updateSensor()
+        sensor?.orderFrontRegardless()
         panel?.setFrame(frame, display: true)
         panel?.orderFrontRegardless()
 
         if Prefs.bool(Prefs.showOnLockScreen) {
             if lockPanel == nil {
                 let lockPanel = IslandPanel(contentRect: frame)
-                lockPanel.contentView = makeHost(size: size)
+                let tracker = HoverTrackingView(frame: NSRect(origin: .zero, size: size))
+                tracker.onPointer = { [weak self] in self?.mouseMoved() }
+                let host = makeHost(size: size)
+                host.frame = tracker.bounds
+                tracker.addSubview(host)
+                lockPanel.contentView = tracker
                 self.lockPanel = lockPanel
             }
             lockPanel?.setFrame(frame, display: true)
@@ -145,6 +169,13 @@ final class IslandController: IslandDropHandler {
         }
     }
 
+    /// Keeps the sensor exactly under the resting island, so it never covers
+    /// menu bar items beside the notch.
+    private func updateSensor() {
+        guard let sensor, let rect = islandRect() else { return }
+        if sensor.frame != rect { sensor.setFrame(rect, display: false) }
+    }
+
     /// The island's current rectangle in screen coordinates, padded so the
     /// collapsed notch is easy to hit.
     private func islandRect() -> NSRect? {
@@ -160,16 +191,8 @@ final class IslandController: IslandDropHandler {
     // MARK: - Events
 
     private func installMonitors() {
-        let moveMask: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDragged]
-
-        if let global = NSEvent.addGlobalMonitorForEvents(matching: moveMask, handler: { [weak self] _ in
-            MainActor.assumeIsolated { self?.mouseMoved() }
-        }) { monitors.append(global) }
-
-        if let local = NSEvent.addLocalMonitorForEvents(matching: moveMask, handler: { [weak self] event in
-            MainActor.assumeIsolated { self?.mouseMoved() }
-            return event
-        }) { monitors.append(local) }
+        // Pointer movement comes from tracking areas (sensor, panel, lock panel);
+        // there's deliberately no global mouse-moved monitor.
 
         // A click anywhere else dismisses the expanded island.
         if let outside = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown], handler: { [weak self] _ in
@@ -195,9 +218,16 @@ final class IslandController: IslandDropHandler {
     private func beginDragPolling() {
         dragChangeCount = NSPasteboard(name: .drag).changeCount
         dragPoll?.invalidate()
-        dragPoll = Timer.scheduledTimer(withTimeInterval: 1 / 30, repeats: true) { [weak self] timer in
+        let startedAt = Date.now
+        dragPoll = Timer.scheduledTimer(withTimeInterval: 1 / 20, repeats: true) { [weak self] timer in
             MainActor.assumeIsolated {
                 guard let self else { return }
+                // A long press that never became a file drag (selecting text,
+                // moving a window): stop watching instead of polling until release.
+                if !self.model.dragInvite, Date.now.timeIntervalSince(startedAt) > 2 {
+                    timer.invalidate()
+                    return
+                }
                 guard NSEvent.pressedMouseButtons & 1 != 0 else {
                     timer.invalidate()
                     self.model.setDragInvite(false)
@@ -223,7 +253,8 @@ final class IslandController: IslandDropHandler {
         // During a file drag the whole canvas listens, so the drop page can
         // open as the file approaches rather than only on the notch itself.
         panel.ignoresMouseEvents = !(inside || model.dragInvite)
-        lockPanel?.ignoresMouseEvents = !inside
+        // The sensor sits under the lock screen, so the twin stays responsive while locked.
+        lockPanel?.ignoresMouseEvents = model.isLocked ? false : !inside
 
         // A file drag never opens the regular tabbed view; the drop page owns it.
         guard !model.dragInvite, !model.isDragging else { return }
@@ -416,11 +447,14 @@ final class IslandController: IslandDropHandler {
         }
         lockState.onChange = { [weak self] locked in
             guard let self else { return }
+            let focusWidget = [Prefs.lockWidgetSlot1, Prefs.lockWidgetSlot2].map(LockWidgetKind.slot).contains(.focus)
             if locked {
                 self.showLockPanel()
                 self.lockWidget.willAppear()
+                if focusWidget && Prefs.bool(Prefs.showOnLockScreen) { FocusService.shared.start() }
             } else {
                 self.hideLockPanelSoon()
+                FocusService.shared.stop()
             }
             self.model.setLocked(locked)
         }
@@ -436,7 +470,18 @@ final class IslandController: IslandDropHandler {
     }
 
     private func applyServicePrefs() {
+        #if DEBUG
+        // `--fake-playing` pins a playing track without polling, for profiling.
+        if CommandLine.arguments.contains("--fake-playing") {
+            media.stop()
+            media.injectPreview(Track(title: "Profiling", artist: "Inlet", album: "", duration: 240, position: 30,
+                                      isPlaying: true, source: .music, sampledAt: .now), artwork: nil)
+        } else {
+            Prefs.bool(Prefs.mediaEnabled) ? media.start() : media.stop()
+        }
+        #else
         Prefs.bool(Prefs.mediaEnabled) ? media.start() : media.stop()
+        #endif
         Prefs.bool(Prefs.calendarEnabled) ? calendar.start() : calendar.stop()
         Prefs.bool(Prefs.brightnessHUDEnabled) ? brightness.start() : brightness.stop()
         Prefs.bool(Prefs.bluetoothEnabled) ? bluetooth.start() : bluetooth.stop()
@@ -450,7 +495,8 @@ final class IslandController: IslandDropHandler {
         } else {
             WeatherService.shared.stop()
         }
-        lockScreen && slots.contains(.focus) ? FocusService.shared.start() : FocusService.shared.stop()
+        // The Focus file is only polled while locked (see `lockState.onChange`).
+        if !(lockScreen && slots.contains(.focus)) { FocusService.shared.stop() }
         if lockScreen && slots.contains(.nextEvent) { calendar.start() }
     }
 }
