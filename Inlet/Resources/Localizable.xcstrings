@@ -709,6 +709,16 @@
         }
       }
     },
+    "Settings": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarlar"
+          }
+        }
+      }
+    },
     "Settings…": {
       "localizations": {
         "tr": {

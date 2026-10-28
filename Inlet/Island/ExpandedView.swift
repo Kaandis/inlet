@@ -7,6 +7,7 @@ struct ExpandedView: View {
     @ObservedObject var calendar: CalendarService
     @ObservedObject var tray: TrayStore
     @ObservedObject var timer: TimerService
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         VStack(spacing: 0) {
@@ -46,6 +47,8 @@ struct ExpandedView: View {
             Color.clear.frame(width: model.notchSize.width)
 
             HStack(spacing: 6) {
+                settingsButton
+                    .padding(.trailing, 6)
                 if battery.hasBattery {
                     Text("\(battery.level)%")
                         .font(.system(size: 12, weight: .semibold))
@@ -58,6 +61,23 @@ struct ExpandedView: View {
         }
         .padding(.horizontal, 22)
         .frame(height: model.notchSize.height)
+    }
+
+    /// Small and quiet, next to the battery: the shortest way into Settings.
+    private var settingsButton: some View {
+        Button {
+            model.collapse()
+            NSApp.activate()
+            openSettings()
+        } label: {
+            Image(systemName: "gearshape.fill")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.45))
+                .frame(width: 18, height: 18)
+        }
+        .buttonStyle(PressableStyle())
+        .help("Settings")
+        .accessibilityLabel("Settings")
     }
 
     private func tabButton(_ tab: ExpandedTab, icon: String) -> some View {
