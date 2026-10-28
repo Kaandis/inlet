@@ -1,0 +1,470 @@
+{
+  "schemaVersion": 1,
+  "app": {
+    "id": "app.inlet.Inlet",
+    "name": "Inlet",
+    "site": "https://kaandis.github.io/inlet/",
+    "repository": "https://github.com/Kaandis/inlet"
+  },
+  "defaultsDomain": "app.inlet.Inlet",
+  "notes": "Every setting is a plain UserDefaults key in defaultsDomain. Inlet watches UserDefaults and applies changes live unless restartRequired is true. Launch at login is not listed: it is an SMAppService login item that only Inlet itself can register.",
+  "groups": [
+    {
+      "id": "general",
+      "title": {
+        "en": "General",
+        "tr": "Genel"
+      },
+      "settings": [
+        {
+          "key": "showMenuBarIcon",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Show menu bar icon",
+            "tr": "Menü çubuğu simgesini göster"
+          }
+        },
+        {
+          "key": "showOnNonNotchDisplays",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Show on displays without a notch",
+            "tr": "Çentiksiz ekranlarda göster"
+          },
+          "description": {
+            "en": "Without a notched display, the island sits at the top of the main display.",
+            "tr": "Çentikli ekran yoksa ada ana ekranın üstünde durur."
+          }
+        },
+        {
+          "key": "AppleLanguages",
+          "type": "language",
+          "default": null,
+          "options": [
+            {
+              "value": null,
+              "title": {
+                "en": "System",
+                "tr": "Sistem"
+              }
+            },
+            {
+              "value": [
+                "en"
+              ],
+              "title": {
+                "en": "English",
+                "tr": "English"
+              }
+            },
+            {
+              "value": [
+                "tr"
+              ],
+              "title": {
+                "en": "Türkçe",
+                "tr": "Türkçe"
+              }
+            }
+          ],
+          "restartRequired": true,
+          "title": {
+            "en": "Language",
+            "tr": "Dil"
+          },
+          "description": {
+            "en": "Remove the key to follow the system language.",
+            "tr": "Sistem dilini izlemek için anahtarı kaldır."
+          }
+        }
+      ]
+    },
+    {
+      "id": "interaction",
+      "title": {
+        "en": "Interaction",
+        "tr": "Etkileşim"
+      },
+      "settings": [
+        {
+          "key": "expandOnHover",
+          "type": "bool",
+          "default": false,
+          "title": {
+            "en": "Expand on hover",
+            "tr": "Üzerine gelince genişlet"
+          }
+        },
+        {
+          "key": "hoverDelay",
+          "type": "number",
+          "default": 0.35,
+          "min": 0,
+          "max": 1,
+          "step": 0.05,
+          "unit": "seconds",
+          "visibleWhen": {
+            "expandOnHover": true
+          },
+          "title": {
+            "en": "Delay",
+            "tr": "Gecikme"
+          }
+        },
+        {
+          "key": "swipeGesturesEnabled",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Swipe gestures",
+            "tr": "Kaydırma hareketleri"
+          },
+          "description": {
+            "en": "Two-finger swipe down: open · up: close · sideways: change track",
+            "tr": "İki parmakla aşağı kaydır: aç · yukarı: kapat · yana: şarkı değiştir"
+          }
+        },
+        {
+          "key": "hapticFeedback",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Haptic feedback",
+            "tr": "Dokunsal geri bildirim"
+          }
+        }
+      ]
+    },
+    {
+      "id": "liveActivities",
+      "title": {
+        "en": "Live Activities",
+        "tr": "Canlı Etkinlikler"
+      },
+      "settings": [
+        {
+          "key": "mediaEnabled",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Now Playing",
+            "tr": "Şu an çalan"
+          },
+          "description": {
+            "en": "What’s playing in Music or Spotify, with controls.",
+            "tr": "Music veya Spotify’da çalan şarkı ve kontrolleri."
+          }
+        },
+        {
+          "key": "batteryEnabled",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Charging and battery alerts",
+            "tr": "Şarj ve pil uyarıları"
+          }
+        },
+        {
+          "key": "calendarEnabled",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Upcoming events",
+            "tr": "Yaklaşan etkinlikler"
+          },
+          "description": {
+            "en": "A heads-up shortly before each event. Needs Calendar access.",
+            "tr": "Her etkinlikten kısa süre önce haber verir. Takvim izni gerekir."
+          }
+        },
+        {
+          "key": "bluetoothEnabled",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Bluetooth devices (AirPods, etc.)",
+            "tr": "Bluetooth aygıtları (AirPods vb.)"
+          }
+        },
+        {
+          "key": "trayEnabled",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Tray and AirDrop",
+            "tr": "Tepsi ve AirDrop"
+          },
+          "description": {
+            "en": "Drag files onto the island and drop them.",
+            "tr": "Dosyaları adanın üstüne sürükleyip bırak."
+          }
+        }
+      ]
+    },
+    {
+      "id": "hud",
+      "title": {
+        "en": "HUD",
+        "tr": "HUD"
+      },
+      "settings": [
+        {
+          "key": "volumeHUDEnabled",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Volume",
+            "tr": "Ses seviyesi"
+          }
+        },
+        {
+          "key": "brightnessHUDEnabled",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Display brightness",
+            "tr": "Ekran parlaklığı"
+          }
+        },
+        {
+          "key": "capsLockEnabled",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Caps Lock",
+            "tr": "Caps Lock"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lockScreen",
+      "title": {
+        "en": "Lock Screen",
+        "tr": "Kilit Ekranı"
+      },
+      "settings": [
+        {
+          "key": "showOnLockScreen",
+          "type": "bool",
+          "default": true,
+          "title": {
+            "en": "Show on lock screen",
+            "tr": "Kilit ekranında göster"
+          }
+        },
+        {
+          "key": "lockScreenMediaWidget",
+          "type": "bool",
+          "default": true,
+          "visibleWhen": {
+            "showOnLockScreen": true
+          },
+          "title": {
+            "en": "Now Playing card",
+            "tr": "Müzik kartı"
+          }
+        },
+        {
+          "key": "lockMediaStyle",
+          "type": "enum",
+          "default": "large",
+          "options": [
+            {
+              "value": "large",
+              "title": {
+                "en": "Large",
+                "tr": "Büyük"
+              }
+            },
+            {
+              "value": "compact",
+              "title": {
+                "en": "Compact",
+                "tr": "Kompakt"
+              }
+            }
+          ],
+          "visibleWhen": {
+            "showOnLockScreen": true,
+            "lockScreenMediaWidget": true
+          },
+          "title": {
+            "en": "Card size",
+            "tr": "Kart boyutu"
+          }
+        },
+        {
+          "key": "lockWidgetSlot1",
+          "type": "enum",
+          "default": "focus",
+          "options": [
+            {
+              "value": "none",
+              "title": {
+                "en": "None",
+                "tr": "Hiçbiri"
+              }
+            },
+            {
+              "value": "focus",
+              "title": {
+                "en": "Focus",
+                "tr": "Odak"
+              }
+            },
+            {
+              "value": "weather",
+              "title": {
+                "en": "Weather",
+                "tr": "Hava durumu"
+              }
+            },
+            {
+              "value": "battery",
+              "title": {
+                "en": "Battery",
+                "tr": "Pil"
+              }
+            },
+            {
+              "value": "nextEvent",
+              "title": {
+                "en": "Next event",
+                "tr": "Sonraki etkinlik"
+              }
+            }
+          ],
+          "visibleWhen": {
+            "showOnLockScreen": true
+          },
+          "title": {
+            "en": "Left widget",
+            "tr": "Sol widget"
+          },
+          "description": {
+            "en": "Focus needs Full Disk Access: macOS doesn’t share the Focus name any other way.",
+            "tr": "Odak için Tam Disk Erişimi gerekir: macOS Odak adını başka yoldan paylaşmıyor."
+          }
+        },
+        {
+          "key": "lockWidgetSlot2",
+          "type": "enum",
+          "default": "weather",
+          "options": [
+            {
+              "value": "none",
+              "title": {
+                "en": "None",
+                "tr": "Hiçbiri"
+              }
+            },
+            {
+              "value": "focus",
+              "title": {
+                "en": "Focus",
+                "tr": "Odak"
+              }
+            },
+            {
+              "value": "weather",
+              "title": {
+                "en": "Weather",
+                "tr": "Hava durumu"
+              }
+            },
+            {
+              "value": "battery",
+              "title": {
+                "en": "Battery",
+                "tr": "Pil"
+              }
+            },
+            {
+              "value": "nextEvent",
+              "title": {
+                "en": "Next event",
+                "tr": "Sonraki etkinlik"
+              }
+            }
+          ],
+          "visibleWhen": {
+            "showOnLockScreen": true
+          },
+          "title": {
+            "en": "Right widget",
+            "tr": "Sağ widget"
+          }
+        },
+        {
+          "key": "lockWidgetOffset",
+          "type": "number",
+          "default": 0,
+          "min": -0.1,
+          "max": 0.1,
+          "step": 0.01,
+          "visibleWhen": {
+            "showOnLockScreen": true
+          },
+          "title": {
+            "en": "Vertical position",
+            "tr": "Dikey konum"
+          },
+          "description": {
+            "en": "Below zero moves the widgets up, above zero moves them down, as a share of the screen height.",
+            "tr": "Sıfırın altı widget'ları yukarı, üstü aşağı taşır (ekran yüksekliğine oranla)."
+          }
+        }
+      ]
+    },
+    {
+      "id": "weather",
+      "title": {
+        "en": "Weather",
+        "tr": "Hava durumu"
+      },
+      "settings": [
+        {
+          "key": "weatherCity",
+          "type": "string",
+          "default": "İstanbul",
+          "title": {
+            "en": "City",
+            "tr": "Şehir"
+          },
+          "description": {
+            "en": "Used by the Weather lock-screen widget. Weather data by Open-Meteo.com (CC BY 4.0).",
+            "tr": "Kilit ekranındaki Hava durumu widget'ı için. Hava durumu verisi Open-Meteo.com'dan (CC BY 4.0)."
+          }
+        },
+        {
+          "key": "weatherUnit",
+          "type": "enum",
+          "default": "celsius",
+          "options": [
+            {
+              "value": "celsius",
+              "title": {
+                "en": "°C",
+                "tr": "°C"
+              }
+            },
+            {
+              "value": "fahrenheit",
+              "title": {
+                "en": "°F",
+                "tr": "°F"
+              }
+            }
+          ],
+          "title": {
+            "en": "Unit",
+            "tr": "Birim"
+          }
+        }
+      ]
+    }
+  ]
+}

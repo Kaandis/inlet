@@ -1,5 +1,6 @@
 #if DEBUG
 import AppKit
+import HarborKit
 import SwiftUI
 
 /// `Inlet --render-previews <dir>` writes a PNG of every island state and exits.

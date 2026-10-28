@@ -59,6 +59,7 @@ final class CalendarService: ObservableObject {
         Task {
             _ = try? await store.requestFullAccessToEvents()
             status = EKEventStore.authorizationStatus(for: .event)
+            Permissions.publish()
             refresh()
         }
     }

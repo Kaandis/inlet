@@ -1,4 +1,5 @@
 import AppKit
+import HarborKit
 import SwiftUI
 
 // MARK: - Configuration

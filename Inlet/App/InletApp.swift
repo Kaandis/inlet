@@ -1,3 +1,4 @@
+import HarborKit
 import SwiftUI
 
 @main
@@ -17,12 +18,17 @@ struct InletApp: App {
 }
 
 private struct MenuBarContent: View {
+    @Environment(\.openSettings) private var openSettings
+
     var body: some View {
-        SettingsLink {
-            Text("Settings…")
+        // With Harbor installed, settings live there; otherwise in Inlet's own window.
+        Button("Settings…") {
+            if !HarborLink.openSettings(appID: "inlet") {
+                NSApp.activate()
+                openSettings()
+            }
         }
         .keyboardShortcut(",")
-        .simultaneousGesture(TapGesture().onEnded { NSApp.activate() })
 
         Divider()
 
@@ -40,6 +46,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         PreviewRenderer.runIfRequested()
         #endif
         Prefs.registerDefaults()
+        SettingsBridge.listen()
+        Permissions.start()
         controller = IslandController()
         controller?.start()
     }

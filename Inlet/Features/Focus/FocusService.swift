@@ -38,12 +38,25 @@ final class FocusService: ObservableObject {
     func read() {
         guard let assertions = try? Data(contentsOf: Self.directory.appendingPathComponent("Assertions.json")),
               let configurations = try? Data(contentsOf: Self.directory.appendingPathComponent("ModeConfigurations.json")) else {
-            hasAccess = false
+            setAccess(false)
             current = nil
             return
         }
-        hasAccess = true
+        setAccess(true)
         current = Self.parse(assertions: assertions, configurations: configurations)
+    }
+
+    private func setAccess(_ access: Bool) {
+        guard access != hasAccess else { return }
+        hasAccess = access
+        Permissions.publish()
+    }
+
+    /// Whether the Focus database can be opened, i.e. Inlet has Full Disk Access.
+    static var canReadDatabase: Bool {
+        guard let handle = try? FileHandle(forReadingFrom: directory.appendingPathComponent("Assertions.json")) else { return false }
+        try? handle.close()
+        return true
     }
 
     static func openFullDiskAccessSettings() {

@@ -6,6 +6,11 @@ options:
   createIntermediateGroups: true
   developmentLanguage: en
 
+packages:
+  HarborKit:
+    url: https://github.com/Kaandis/harbor-kit
+    from: 0.1.0
+
 settings:
   base:
     SWIFT_VERSION: "5.0"
@@ -24,6 +29,8 @@ targets:
     platform: macOS
     sources:
       - path: Inlet
+    dependencies:
+      - package: HarborKit
     info:
       path: Inlet/Resources/Info.plist
       properties:
