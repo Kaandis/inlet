@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.1 — 2026-10-29
+
+- When Harbor uninstalls Inlet, Inlet removes its own login item first, so nothing is left in System Settings › Login Items.
+- The website’s demo Mac has a Dock with the other Harbor apps.
+
 ## 1.4 — 2026-10-29
 
 - Works with the Harbor hub: Inlet's settings appear in Harbor and changes made there apply right away. With Harbor installed, Settings… in the menu opens Inlet's page there.

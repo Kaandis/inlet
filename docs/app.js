@@ -34,7 +34,7 @@
     'tray.emptyT': 'Dosyaları adanın üstüne sürükle',
     'tray.emptyD': 'Masaüstündeki PDF’i dene.',
     'timer.10s': '10 sn',
-    'demo.hint': 'Hadi, gerçekten çalışıyor: kilidi aç, şarkıyı başlat, PDF’i çentiğe sürükle.',
+    'demo.hint': 'Hadi, gerçekten çalışıyor: kilidi aç, şarkıyı başlat, PDF’i çentiğe sürükle. Dock’ta yalnızca Harbor uygulamaları var; her simge kendi sitesine götürür.',
     'features.title': 'Çentiğin eksik olan her şeyi.',
     'f1.t': 'Şu an çalan', 'f1.d': 'Kapak ve kontrollerle Music ve Spotify.',
     'f2.t': 'Dosya tepsisi', 'f2.d': 'Dosyaları ekranın en üstünde beklet.',
@@ -118,6 +118,34 @@
   const onScroll = () => nav.classList.toggle('scrolled', scrollY > 8);
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+
+  // =========================================================
+  // The Harbor Dock: only Harbor apps, each linking to its site.
+  // =========================================================
+  const HARBOR = [
+    { name: 'Inlet', url: 'https://kaandis.github.io/inlet/', icon: 'assets/icon.png?v=1', running: true, self: true },
+    { name: 'Ferry', url: 'https://kaandis.github.io/ferry/', icon: 'assets/ferry-icon.png?v=1' },
+    { name: 'Harbor', url: 'https://kaandis.github.io/harbor/', icon: 'assets/harbor-icon.png?v=1' },
+  ];
+  const dock = $('#dock');
+  const dockLabel = $('#dockLabel');
+  dock.innerHTML = HARBOR.map((app) => `<a href="${app.url}" class="${app.running ? 'running' : ''}" aria-label="${app.name}"${app.self ? ' data-self' : ' target="_blank" rel="noopener"'}><img src="${app.icon}" alt="" width="52" height="52"></a>`).join('');
+  [...dock.querySelectorAll('a')].forEach((a) => {
+    a.addEventListener('pointerenter', () => {
+      const box = a.getBoundingClientRect();
+      const macBox = mac.getBoundingClientRect();
+      dockLabel.textContent = a.getAttribute('aria-label');
+      dockLabel.hidden = false;
+      dockLabel.style.left = `${(box.left + box.width / 2 - macBox.left) / k}px`;
+    });
+    a.addEventListener('pointerleave', () => { dockLabel.hidden = true; });
+    if (a.hasAttribute('data-self')) {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+      });
+    }
+  });
 
   // =========================================================
   // Clocks

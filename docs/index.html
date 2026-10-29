@@ -35,7 +35,7 @@
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
   </script>
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -135,6 +135,8 @@
             </div>
             <div class="drag-hint" id="dragHint"><span data-i18n="desk.hint">Drag me to the notch</span> ↗</div>
             <div class="toast" id="toast" role="status"></div>
+            <nav class="dock" id="dock" aria-label="Harbor Dock"></nav>
+            <div class="dock-label" id="dockLabel" hidden></div>
           </div>
 
           <div class="lock" id="lock">
@@ -253,7 +255,7 @@
           </div>
         </div>
       </div>
-      <p class="demo-hint" data-i18n="demo.hint">Go on, it’s live: unlock it, press play, drag the PDF to the notch.</p>
+      <p class="demo-hint" data-i18n="demo.hint">Go on, it’s live: unlock it, press play, drag the PDF to the notch. The Dock holds only Harbor apps; each icon takes you to its site.</p>
     </section>
 
     <section class="section wrap" id="features">
@@ -310,6 +312,6 @@
     <p class="disclaimer" data-i18n="footer.disclaimer">Inlet is an independent project and is not affiliated with, endorsed by or sponsored by Apple Inc. Mac, MacBook, AirDrop and AirPods are trademarks of Apple Inc. Spotify is a trademark of Spotify AB.</p>
   </footer>
 
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
