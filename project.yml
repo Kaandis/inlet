@@ -14,7 +14,7 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "1.3"
+    MARKETING_VERSION: "1.4"
     CURRENT_PROJECT_VERSION: "1"
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
@@ -55,3 +55,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: app.inlet.Inlet
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: NO
+      configs:
+        # Release builds shouldn't let debuggers attach.
+        Release:
+          CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO

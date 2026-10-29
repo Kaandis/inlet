@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## 1.4 — 2026-10-29
 
+- Works with the Harbor hub: Inlet's settings appear in Harbor and changes made there apply right away. With Harbor installed, Settings… in the menu opens Inlet's page there.
+- Signed with the Harbor certificate, so macOS keeps Inlet's permissions across updates.
 - A small Settings button next to the battery in the expanded island.
 - Much lighter on battery: near-zero CPU while music plays (was ~7–16%). Level bars run on Core Animation, Music/Spotify changes arrive via their notifications instead of polling every second, scripts are compiled once, hover uses a small sensor window instead of a global mouse monitor, and timers allow the system to coalesce wakeups.
 - Privacy: while the Mac is locked, the island only opens to Now Playing — calendar and tray stay hidden.
