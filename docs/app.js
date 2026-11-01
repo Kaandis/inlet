@@ -126,6 +126,7 @@
     { name: 'Inlet', url: 'https://kaandis.github.io/inlet/', icon: 'assets/icon.png?v=1', running: true, self: true },
     { name: 'Ferry', url: 'https://kaandis.github.io/ferry/', icon: 'assets/ferry-icon.png?v=1' },
     { name: 'Stow', url: 'https://kaandis.github.io/stow/', icon: 'assets/stow-icon.png?v=1' },
+    { name: 'Helm', url: 'https://kaandis.github.io/helm/', icon: 'assets/helm-icon.png?v=1' },
     { name: 'Harbor', url: 'https://kaandis.github.io/harbor/', icon: 'assets/harbor-icon.png?v=1' },
   ];
   const dock = $('#dock');
