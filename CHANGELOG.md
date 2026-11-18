@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.2 — 2026-11-18
+
+- Inlet no longer disappears on its own: macOS 27 sometimes quit it as an idle background app; Inlet now turns that quit down.
+
 ## 1.4.1 — 2026-10-29
 
 - When Harbor uninstalls Inlet, Inlet removes its own login item first, so nothing is left in System Settings › Login Items.

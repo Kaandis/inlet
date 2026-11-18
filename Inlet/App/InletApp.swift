@@ -41,6 +41,11 @@ private struct MenuBarContent: View {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var controller: IslandController?
 
+    /// macOS 27 can quit a running menu bar app as idle; turn that down.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        QuitGuard.reply()
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         #if DEBUG
         PreviewRenderer.runIfRequested()
