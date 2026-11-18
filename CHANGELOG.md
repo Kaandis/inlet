@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.3 — 2026-11-18
+
+- On a display without a notch, like an external monitor, the island no longer sits in the menu bar as a black notch: at rest it fades away, and it comes back for music, timers, volume and other notices, when you hover the top of the screen or when you drag a file there.
+- Compact layouts on those displays drop the gap they kept for a camera that isn't there, so the island stays small.
+
 ## 1.4.2 — 2026-11-18
 
 - Inlet no longer disappears on its own: macOS 27 sometimes quit it as an idle background app; Inlet now turns that quit down.

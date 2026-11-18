@@ -121,6 +121,14 @@ final class IslandModel: ObservableObject {
         return .idle
     }
 
+    /// Room kept clear for the camera between the two sides of a compact
+    /// layout. A display without a notch needs none, so the island stays small.
+    var centerGap: CGFloat { hasHardwareNotch ? notchSize.width : 14 }
+
+    /// A display without a notch has nothing for the island to sit around, so
+    /// at rest it fades away; activity, a hover or a file drag brings it back.
+    var isConcealed: Bool { !hasHardwareNotch && presentation == .idle && !isHovering && !dragInvite }
+
     /// Concave flare radius where the island meets the screen edge.
     var topRadius: CGFloat { isExpanded || isDragging ? 14 : 7 }
     var bottomRadius: CGFloat { isExpanded || isDragging ? 34 : max(10, notchSize.height * 0.36) }
@@ -128,6 +136,7 @@ final class IslandModel: ObservableObject {
     /// Size of the island body (without the top flares).
     var bodySize: CGSize {
         let n = notchSize
+        let gap = centerGap
         let side = n.height + 8
         var size: CGSize
         switch presentation {
@@ -135,17 +144,17 @@ final class IslandModel: ObservableObject {
             // Dragging a file opens the tray page at full size.
             size = expandedBodySize
         case .hud:
-            size = CGSize(width: n.width + 2 * 96, height: n.height)
+            size = CGSize(width: gap + 2 * 96, height: n.height)
         case .notice:
-            size = CGSize(width: n.width + 2 * 120, height: n.height)
+            size = CGSize(width: gap + 2 * 120, height: n.height)
         case .timer:
-            size = CGSize(width: n.width + 2 * 66, height: n.height)
+            size = CGSize(width: gap + 2 * 66, height: n.height)
         case .compactNotice:
-            size = CGSize(width: n.width + 2 * 84, height: n.height)
+            size = CGSize(width: gap + 2 * 84, height: n.height)
         case .activity, .locked:
-            size = CGSize(width: n.width + 2 * side, height: n.height)
+            size = CGSize(width: gap + 2 * side, height: n.height)
         case .idle:
-            size = n
+            size = hasHardwareNotch ? n : CGSize(width: 150, height: n.height)
         }
         if (isHovering || dragInvite) && !isExpanded && !isDragging {
             size.width += 18

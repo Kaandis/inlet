@@ -49,7 +49,7 @@ struct ExpandedView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Color.clear.frame(width: model.notchSize.width)
+            Color.clear.frame(width: model.centerGap)
 
             HStack(spacing: 6) {
                 if !model.isLocked {

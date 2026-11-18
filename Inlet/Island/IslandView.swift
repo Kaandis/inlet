@@ -29,6 +29,7 @@ struct IslandView: View {
         .frame(width: size.width, height: size.height, alignment: .top)
         .background(.black)
         .clipShape(shape)
+        .opacity(model.isConcealed ? 0 : 1)
         .shadow(color: .black.opacity(model.isExpanded || model.isDragging ? 0.4 : 0), radius: 20, y: 10)
         .contentShape(shape)
         .onTapGesture {
@@ -115,7 +116,7 @@ private struct DropZonesView: View {
                 Label("Tray", systemImage: "tray.full.fill")
                     .font(.system(size: 12, weight: .semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Color.clear.frame(width: model.notchSize.width)
+                Color.clear.frame(width: model.centerGap)
                 (tray.items.isEmpty ? Text("Empty") : Text("\(tray.items.count) files"))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.white.opacity(0.5))
@@ -208,7 +209,7 @@ private struct Flanking<Leading: View, Trailing: View>: View {
             leading
                 .frame(maxWidth: .infinity, alignment: .leading)
             Color.clear
-                .frame(width: model.notchSize.width)
+                .frame(width: model.centerGap)
             trailing
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
